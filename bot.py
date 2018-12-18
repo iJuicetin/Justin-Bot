@@ -1,8 +1,6 @@
 import discord 
+import config
 from discord.ext import commands
-
-
-TOKEN = 'NTI0MzYxMzY1NDY1NTk1OTI0.Dvm98Q.gpbHFeDoYzEhkuwAIUwCWAC1cv4'
 
 client = commands.Bot(command_prefix = '!')
 
@@ -29,4 +27,4 @@ async def echo(*args):
         output += ' '
     await client.say(output)
 
-client.run(TOKEN)
+client.run(config.TOKEN)
