@@ -1,5 +1,6 @@
 import discord 
 import config
+import requests
 from discord.ext import commands
 
 client = commands.Bot(command_prefix = '!')
@@ -26,5 +27,38 @@ async def echo(*args):
         output += word
         output += ' '
     await client.say(output)
+
+# Using Riot Games API, this command will return the summoners rank!
+@client.command()
+async def league(*SummonerNameIn):
+    SummonerName = ''
+    # Loop through when name has spaces
+    for word in SummonerNameIn:
+        SummonerName += word
+    # Retrieve ID from summoner name
+    responseJSON = requestSummonerData(SummonerName)
+    ID = responseJSON['id']
+    ID = str(ID)
+    # Get ranked data using ID
+    rankedJSON = requestRankedData(ID)
+    Name = str(rankedJSON[0]['summonerName'])
+    Tier = str(rankedJSON[0]['tier'])
+    Rank = str(rankedJSON[0]['rank'])
+    lp = str(rankedJSON[0]['leaguePoints'])
+    # Print out data
+    await client.say("**Summoner: ** "+Name+"\n"+"**Rank: **"+Tier+" "+Rank+" "+ lp +" lp ")
+
+
+def requestSummonerData(SummonerName):
+    URL = "https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-name/"+SummonerName+"?api_key="+config.RiotAPI
+    print(URL)
+    response = requests.get(URL)
+    return response.json()
+
+def requestRankedData(ID):
+    URL = "https://na1.api.riotgames.com/lol/league/v4/positions/by-summoner/"+ID+"?api_key="+config.RiotAPI
+    print(URL)
+    response = requests.get(URL)
+    return response.json()
 
 client.run(config.TOKEN)
