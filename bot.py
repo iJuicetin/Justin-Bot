@@ -41,12 +41,17 @@ async def league(*SummonerNameIn):
     ID = str(ID)
     # Get ranked data using ID
     rankedJSON = requestRankedData(ID)
+    print(len(rankedJSON))
     Name = str(rankedJSON[0]['summonerName'])
-    Tier = str(rankedJSON[0]['tier'])
-    Rank = str(rankedJSON[0]['rank'])
-    lp = str(rankedJSON[0]['leaguePoints'])
-    # Print out data
-    await client.say("**Summoner: ** "+Name+"\n"+"**Rank: **"+Tier+" "+Rank+" "+ lp +" lp ")
+    await client.say("**Summoner: ** "+Name+"\n")
+    for i in range(len(rankedJSON)):
+        QType = str(rankedJSON[i]['queueType'])
+        QType = QType.replace("_"," ")
+        Tier = str(rankedJSON[i]['tier'])
+        Rank = str(rankedJSON[i]['rank'])
+        lp = str(rankedJSON[i]['leaguePoints'])
+        # Print out data
+        await client.say("**Queue: **"+ QType + "\n" +"**Rank: **"+Tier+" "+Rank+" "+ lp +" lp ")
 
 
 def requestSummonerData(SummonerName):
