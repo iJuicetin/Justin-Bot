@@ -17,6 +17,14 @@ async def on_message(message):
     await client.process_commands(message)
 
 @client.command()
+async def about():
+    await client.say("Shitty bot made by Justin")
+
+@client.command()
+async def help():
+    await client.say("``` **Commands:** \n")
+
+@client.command()
 async def ping():
     await client.say("Pong!")
 
@@ -52,7 +60,6 @@ async def league(*SummonerNameIn):
         lp = str(rankedJSON[i]['leaguePoints'])
         # Print out data
         await client.say("**Queue: **"+ QType + "\n" +"**Rank: **"+Tier+" "+Rank+" "+ lp +" lp ")
-
 
 def requestSummonerData(SummonerName):
     URL = "https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-name/"+SummonerName+"?api_key="+config.RiotAPI
