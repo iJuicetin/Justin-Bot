@@ -139,13 +139,13 @@ async def nba(ctx, *name: str):
 @bot.command()
 async def reddit(ctx, subreddit):
     output = await ctx.send('Working...')
-    await output.delete()
     try:
         url = "https://old.reddit.com/r/"+subreddit
         source = requests.get(url, headers = {'User-agent': 'Justin-Bot v1'}).text
         soup = BeautifulSoup(source, 'lxml')
         siteTable = soup.find("div",{"class":"sitetable linklisting"})
     except Exception:
+        await output.delete()
         await ctx.send('Subreddit not found')
         return
 
@@ -157,12 +157,14 @@ async def reddit(ctx, subreddit):
         randPostTitle = post[randNum].find("div",{"class":"entry unvoted"}).div.p.a.text
         randPostLink = post[randNum]["data-url"]
     except Exception:
+        await output.delete()
         await ctx.send('NSFW Subreddit. ')
         return
 
     if randPostLink.startswith('/r/'):
-        randPostLink = "https://old.reddit.com"+randPostLink
+        randPostLink = "https://reddit.com"+randPostLink
 
+    await output.delete()
     # one message for easy deletion
     await ctx.send('**Title:**\n{0}\n**Post:**\n{1}'.format(randPostTitle,randPostLink))
     
