@@ -1,18 +1,27 @@
 import discord 
 import config
 from discord.ext import commands
-import random
+from bs4 import BeautifulSoup
+import requests
+import random 
+from random import randint
 import urllib.request
 import json
 
-bot = commands.Bot(command_prefix = "!", description= "Bot made by Justin Chan")
-bot.owner_id = '153714829964738560'
+bot = commands.Bot(command_prefix = "j!", description= "Bot made by Justin Chan")
+bot.owner_id = 153714829964738560
 bot.activity = discord.Game("{0}help for a list of commands!".format(bot.command_prefix))
 bot.remove_command('help')
 
 @bot.event
 async def on_ready():
     print('We have logged in as {0.user} \nCreated by Justin Chan ({1})'.format(bot, bot.owner_id))
+
+@bot.command()
+async def stop(ctx):
+    if ctx.message.author.id == bot.owner_id:
+        await ctx.send("Good Bye World! :earth_africa:")
+        await bot.logout()
 
 @bot.command()
 async def ping(ctx):
@@ -49,7 +58,12 @@ async def help(ctx):
     )
     helpMsg.add_field(
         name='{0}nba player fullname'.format(bot.command_prefix),
-        value='Returns the information of a given nba player.',
+        value='Returns the information of a given active nba player.',
+        inline=False
+    )
+    helpMsg.add_field(
+        name='{0}reddit subreddit'.format(bot.command_prefix),
+        value='Returns a random post from the front page of the subreddit given.',
         inline=False
     )
     await ctx.send(embed=helpMsg)
@@ -121,4 +135,37 @@ async def nba(ctx, *name: str):
     except Exception:
         await ctx.send('Player not found!')
         return
+
+@bot.command()
+async def reddit(ctx, subreddit):
+    output = await ctx.send('Working...')
+    await output.delete()
+    try:
+        url = "https://old.reddit.com/r/"+subreddit
+        source = requests.get(url, headers = {'User-agent': 'Justin-Bot v1'}).text
+        soup = BeautifulSoup(source, 'lxml')
+        siteTable = soup.find("div",{"class":"sitetable linklisting"})
+    except Exception:
+        await ctx.send('Subreddit not found')
+        return
+
+    try:
+        post = siteTable.findAll("div",{"data-context":"listing"})
+        randNum = randint(0,len(post)-1)
+        while 'stickied' in post[randNum]["class"]:
+            randNum = randint(0,len(post)-1)
+        randPostTitle = post[randNum].find("div",{"class":"entry unvoted"}).div.p.a.text
+        randPostLink = post[randNum]["data-url"]
+    except Exception:
+        await ctx.send('NSFW Subreddit. ')
+        return
+
+    if randPostLink.startswith('/r/'):
+        randPostLink = "https://old.reddit.com"+randPostLink
+
+    # one message for easy deletion
+    await ctx.send('**Title:**\n{0}\n**Post:**\n{1}'.format(randPostTitle,randPostLink))
+    
+    
+
 bot.run(config.TOKEN)
