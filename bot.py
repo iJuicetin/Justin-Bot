@@ -62,13 +62,18 @@ async def nba(ctx, *name: str):
         mainUrl = urllib.request.urlopen("http://data.nba.net/10s/prod/v1/today.json")
         urlData = json.loads(mainUrl.read().decode())
         playerEndUrl = urlData['links']['leagueRosterPlayers']
+        teamEndUrl = urlData['links']['teams']
         
         playerUrl = "http://data.nba.net/10s"+playerEndUrl
+        teamUrl = "http://data.nba.net/10s"+teamEndUrl
         playerUrl = urllib.request.urlopen(playerUrl)
+        teamUrl = urllib.request.urlopen(teamUrl)
         playerData = json.loads(playerUrl.read().decode())
+        teamData = json.loads(teamUrl.read().decode())
         
-        length = len(playerData['league']['standard'])
-        for x in range(length):
+        lengthPlayers = len(playerData['league']['standard'])
+        lengthTeams = len(teamData['league']['standard'])
+        for x in range(lengthPlayers):
             tempLastName = playerData['league']['standard'][x]['lastName']
             tempFirstName = playerData['league']['standard'][x]['firstName']
             if tempLastName.lower() == lastName.lower() and tempFirstName.lower() == firstName.lower():
@@ -78,8 +83,13 @@ async def nba(ctx, *name: str):
                 position = playerData['league']['standard'][x]['teamSitesOnly']['posFull']
                 height = playerData['league']['standard'][x]['heightFeet'] + '\'' + playerData['league']['standard'][x]['heightInches'] + '\" (' + playerData['league']['standard'][x]['heightMeters'] + 'm)'
                 weight = playerData['league']['standard'][x]['weightPounds'] + 'lb'
+                teamSize = len(playerData['league']['standard'][x]['teams'])
+                teamNum = playerData['league']['standard'][x]['teams'][teamSize-1]['teamId']
 
-                print (playerData['league']['standard'][x]['firstName'])
+        for x in range(lengthTeams):
+            tempTeamId = teamData['league']['standard'][x]['teamId']
+            if tempTeamId == teamNum:
+                teamName = teamData['league']['standard'][x]['fullName']
 
         nbaMsg = discord.Embed(
             title = '{0} {1} #{2}'.format(firstName,lastName,jerseyNum),
@@ -87,6 +97,11 @@ async def nba(ctx, *name: str):
             colour = discord.Colour.red()
         )
         nbaMsg.set_thumbnail(url='https://theundefeated.com/wp-content/uploads/2017/05/nba-logo.png?w=700')
+        nbaMsg.add_field(
+            name='Team',
+            value='{0}'.format(teamName),
+            inline=False
+        )
         nbaMsg.add_field(
             name='Position',
             value='{0}'.format(position),
@@ -104,6 +119,6 @@ async def nba(ctx, *name: str):
         )
         await ctx.send(embed=nbaMsg)
     except Exception:
-        await ctx.send('Uh oh something went wrong')
+        await ctx.send('Player not found!')
         return
 bot.run(config.TOKEN)
