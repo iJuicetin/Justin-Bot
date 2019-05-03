@@ -32,7 +32,10 @@ async def choose(ctx, *choices: str):
     try:
         myChoices = " ".join(choices)
         myChoices = myChoices.split(',')
-        await ctx.send('I choose {0}'.format(random.choice(myChoices)))
+        randChoice = random.choice(myChoices)
+        if randChoice.startswith(' '):
+            randChoice = randChoice[1:]
+        await ctx.send('I choose {0}'.format(randChoice))
     except Exception:
         await ctx.send('Enter at least 1 choice')
         return
@@ -52,17 +55,22 @@ async def help(ctx):
         inline=False     
     )
     helpMsg.add_field(
-        name='{0}choose choice1,choice2,...'.format(bot.command_prefix),
+        name='{0}whois <user>'.format(bot.command_prefix),
+        value='Displays information on user.',
+        inline=False
+    )
+    helpMsg.add_field(
+        name='{0}choose <choice1,choice2, ...>'.format(bot.command_prefix),
         value='Randomly chooses a given choice.',
         inline=False
     )
     helpMsg.add_field(
-        name='{0}nba player fullname'.format(bot.command_prefix),
+        name='{0}nba <firstname> <lastname>'.format(bot.command_prefix),
         value='Returns the information of a given active nba player.',
         inline=False
     )
     helpMsg.add_field(
-        name='{0}reddit subreddit'.format(bot.command_prefix),
+        name='{0}reddit <subreddit>'.format(bot.command_prefix),
         value='Returns a random post from the front page of the subreddit given.',
         inline=False
     )
@@ -79,12 +87,15 @@ async def whois(ctx, name):
         userAvatar = user.avatar_url
         displayName = user.display_name
         userCreation = user.created_at
+        userCreation = str(userCreation)
+        creationDate = userCreation[:10]
+        creationTime = userCreation[11:19]
     except Exception:
         await ctx.send("Invalid user owo.")
         return
     
     whoMsg = discord.Embed(
-        title = 'Who is {0}'.format(user),
+        title = 'Who is {0}?'.format(user),
         description = '',
         colour = discord.Colour.blue()
     )
@@ -101,7 +112,7 @@ async def whois(ctx, name):
     )
     whoMsg.add_field(
         name='Created at',
-        value=userCreation,
+        value=creationDate+'\n'+creationTime+' EST',
         inline=False
     )
     await ctx.send(embed=whoMsg)
