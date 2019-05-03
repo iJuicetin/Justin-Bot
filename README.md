@@ -1,5 +1,6 @@
 # Justin-Bot
-Discord bot developed in Python created by Justin Chan
+Discord bot developed in Python created by Justin Chan.
+
 Open VM using:
 >source bot-env/bin/activate
 
