@@ -18,7 +18,7 @@ async def on_ready():
     print('We have logged in as {0.user} \nCreated by Justin Chan ({1})'.format(bot, bot.owner_id))
 
 @bot.command()
-async def stop(ctx):
+async def die(ctx):
     if ctx.message.author.id == bot.owner_id:
         await ctx.send("Good Bye World! :earth_africa:")
         await bot.logout()
@@ -79,6 +79,7 @@ async def help(ctx):
 @bot.command()
 async def whois(ctx, name):
     userId = ""
+    guildMem = ctx.guild.members
     for x in name:
         if x.isdigit():
             userId = userId+x
@@ -86,8 +87,16 @@ async def whois(ctx, name):
         user = bot.get_user(int(userId))
         userAvatar = user.avatar_url
         displayName = user.display_name
+        for x in guildMem:
+            if x.id == int(userId):
+                if x.nick != None:
+                    displayName = x.nick
+                joinedAt = x.joined_at
         userCreation = user.created_at
         userCreation = str(userCreation)
+        joinedAt = str(joinedAt)
+        joinedDate = joinedAt[:10]
+        joinedTime = joinedAt[11:19]
         creationDate = userCreation[:10]
         creationTime = userCreation[11:19]
     except Exception:
@@ -113,6 +122,11 @@ async def whois(ctx, name):
     whoMsg.add_field(
         name='Created at',
         value=creationDate+'\n'+creationTime+' EST',
+        inline=False
+    )
+    whoMsg.add_field(
+        name='Joined at',
+        value=joinedDate+'\n'+joinedTime+' EST',
         inline=False
     )
     await ctx.send(embed=whoMsg)
