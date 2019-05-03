@@ -69,6 +69,44 @@ async def help(ctx):
     await ctx.send(embed=helpMsg)
 
 @bot.command()
+async def whois(ctx, name):
+    userId = ""
+    for x in name:
+        if x.isdigit():
+            userId = userId+x
+    try:
+        user = bot.get_user(int(userId))
+        userAvatar = user.avatar_url
+        displayName = user.display_name
+        userCreation = user.created_at
+    except Exception:
+        await ctx.send("Invalid user owo.")
+        return
+    
+    whoMsg = discord.Embed(
+        title = 'Who is {0}'.format(user),
+        description = '',
+        colour = discord.Colour.blue()
+    )
+    whoMsg.set_image(url = userAvatar)
+    whoMsg.add_field(
+        name='Nickname',
+        value=displayName,
+        inline=False
+    )
+    whoMsg.add_field(
+        name='ID',
+        value=userId,
+        inline=False
+    )
+    whoMsg.add_field(
+        name='Created at',
+        value=userCreation,
+        inline=False
+    )
+    await ctx.send(embed=whoMsg)
+
+@bot.command()
 async def nba(ctx, *name: str):
     try:
         firstName = name[0]
@@ -168,6 +206,4 @@ async def reddit(ctx, subreddit):
     # one message for easy deletion
     await ctx.send('**Title:**\n{0}\n**Post:**\n{1}'.format(randPostTitle,randPostLink))
     
-    
-
 bot.run(config.TOKEN)
